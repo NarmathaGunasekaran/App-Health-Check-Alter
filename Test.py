@@ -5,7 +5,7 @@ import os
 DT_ENV_URL = os.getenv("DT_ENV_URL")       # Example: https://abc123.live.dynatrace.com
 DT_API_TOKEN = os.getenv("DT_API_TOKEN")   # API Token with "events.ingest" permission
 
-url = f"{DT_ENV_URL}/api/v1/events"
+url = f"{DT_URL}/api/v1/events"
 headers = {
     "Authorization": f"Api-Token {DT_API_TOKEN}",
     "Content-Type": "application/json"
