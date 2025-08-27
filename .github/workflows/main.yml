@@ -1,12 +1,12 @@
-name: Dynatrace CPU Dummy Problems
+name: Dynatrace CPU Dummy Simulation
 
 on:
-  workflow_dispatch:   # Manual trigger
+  workflow_dispatch:   # Allows manual trigger
   schedule:
-    - cron: '0 * * * *'  # Optional: run every hour
+    - cron: '0 * * * *'  # Optional: runs every hour
 
 jobs:
-  simulate-cpu-problems:
+  simulate-cpu:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,11 +18,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install requests library
+      - name: Install requests
         run: pip install requests
 
-      - name: Send Dummy CPU Metrics
+      - name: Run CPU Simulation
         env:
           DT_URL: ${{ secrets.DT_URL }}
           DT_API_TOKEN: ${{ secrets.DT_API_TOKEN }}
-        run: python cpu_dummy_metrics_multi.py
+        run: python cpu_dummy_simulation.py
