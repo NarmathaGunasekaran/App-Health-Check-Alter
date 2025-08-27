@@ -1,42 +1,17 @@
-import psutil
-import requests
 import time
-import os
+import threading
 
-# GitHub repo/workflow details
-GITHUB_REPO = "your-username/your-repo"
-GITHUB_WORKFLOW = "alert.yml"   # Your workflow filename
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")  # Store GitHub PAT in environment variable
-
-# GitHub API endpoint
-GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/actions/workflows/{GITHUB_WORKFLOW}/dispatches"
-
-def trigger_github_action(usage):
-    """Trigger GitHub Action workflow with CPU usage"""
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "Authorization": f"Bearer {GITHUB_TOKEN}"
-    }
-    data = {
-        "ref": "main",  # branch name
-        "inputs": {
-            "cpu_usage": str(usage)
-        }
-    }
-
-    response = requests.post(GITHUB_API_URL, json=data, headers=headers)
-    if response.status_code == 204:
-        print(f"✅ Alert sent → GitHub Action triggered (CPU: {usage}%)")
-    else:
-        print(f"❌ Failed to trigger GitHub Action: {response.text}")
-
-def monitor_cpu():
-    """Send real-time CPU usage to GitHub Actions"""
+def cpu_load():
     while True:
-        usage = psutil.cpu_percent(interval=2)  # check every 2 seconds
-        print(f"CPU Usage: {usage}%")
-        trigger_github_action(usage)
-        time.sleep(5)  # wait 5 sec before next check
+        # Just calculate something useless to keep CPU busy
+        _ = [x**2 for x in range(10000)]
 
-if _name_ == "_main_":
-    monitor_cpu()
+# Create multiple threads to increase CPU usage
+threads = []
+for i in range(4):  # Change 4 → number of CPU cores you want to stress
+    t = threading.Thread(target=cpu_load)
+    t.start()
+    threads.append(t)
+
+# Run for 2 minutes
+time.sleep(120)
