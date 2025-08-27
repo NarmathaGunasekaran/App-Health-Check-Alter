@@ -17,7 +17,7 @@ jobs:
           echo "Starting deployment..."
           exit 1   # ❌ Force fail to test alert
 
-      - name: Send Dynatrace Problem on Failure
+      - name: Send Dynatrace Problem on Failure..
         if: failure()
         run: |
           curl -X POST \
