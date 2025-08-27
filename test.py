@@ -2,6 +2,7 @@ import os
 import requests
 import random
 
+# Load and strip secrets
 DT_URL = os.environ.get("DT_URL", "").strip()
 DT_API_TOKEN = os.environ.get("DT_API_TOKEN", "").strip()
 
@@ -10,11 +11,12 @@ if not DT_URL or not DT_API_TOKEN:
 
 endpoint = f"{DT_URL}/api/v2/metrics/ingest"
 
+# Generate a dummy CPU usage
 cpu_value = random.randint(85, 95)
 host_name = "dummy-host"
 
-# Use a custom metric key, not builtin
-metric_payload = f"custom.cpu.usage,host={host_name} value={cpu_value}"
+# Correct metric line with type=gauge
+metric_payload = f"custom.cpu.usage,host={host_name} type=gauge value={cpu_value}"
 
 headers = {
     "Authorization": f"Api-Token {DT_API_TOKEN}",
