@@ -16,7 +16,7 @@ jobs:
           python-version: "3.x"
 
       - name: Send Dummy Dynatrace Alert
-        run: Test.py
+        run: test.py
         env:
           DT_API_TOKEN: ${{ secrets.DT_API_TOKEN }}
           DT_ENV_URL: ${{ secrets.DT_URL }}
