@@ -15,8 +15,8 @@ endpoint = f"{DT_URL}/api/v2/metrics/ingest"
 cpu_value = random.randint(85, 95)
 host_name = "dummy-host"
 
-# Correct metric line with type=gauge
-metric_payload = f"custom.cpu.usage,host={host_name} type=gauge value={cpu_value}"
+# Correct metric line: custom metric, no type
+metric_payload = f"custom.cpu.usage,host={host_name} {cpu_value}"
 
 headers = {
     "Authorization": f"Api-Token {DT_API_TOKEN}",
