@@ -2,7 +2,7 @@ import requests
 import os
 
 # Dynatrace environment variables
-DT_ENV_URL = os.getenv("DT_ENV_URL")       # Example: https://abc123.live.dynatrace.com
+DT_ENV_URL = os.getenv("DT_URL")       # Example: https://abc123.live.dynatrace.com
 DT_API_TOKEN = os.getenv("DT_API_TOKEN")   # API Token with "events.ingest" permission
 
 url = f"{DT_URL}/api/v1/events"
