@@ -22,4 +22,4 @@ jobs:
         run: python3 test.py
         env:
           DT_API_TOKEN: ${{ secrets.DT_API_TOKEN }}
-          DT_ENV_URL: ${{ variables.DT_URL }}
+          DT_ENV_URL: ${{ secrets.DT_URL }}
