@@ -19,4 +19,4 @@ jobs:
           python-version: "3.x"
 
       - name: Run CPU Stress Script
-        run: python cpu_stress.py
+        run: python Test.py
