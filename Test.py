@@ -1,25 +1,22 @@
-import time
-import threading
+import requests
+import os
 
-running = True  # global flag to stop threads later
+# Dynatrace environment variables
+DT_ENV_URL = os.getenv("DT_ENV_URL")       # Example: https://abc123.live.dynatrace.com
+DT_API_TOKEN = os.getenv("DT_API_TOKEN")   # API Token with "events.ingest" permission
 
-def cpu_load():
-    while running:
-        _ = [x**2 for x in range(10000)]
+url = f"{DT_ENV_URL}/api/v1/events"
+headers = {
+    "Authorization": f"Api-Token {DT_API_TOKEN}",
+    "Content-Type": "application/json"
+}
 
-threads = []
-for i in range(4):  # adjust number of CPU threads
-    t = threading.Thread(target=cpu_load)
-    t.start()
-    threads.append(t)
+payload = {
+  "eventType": "CUSTOM_ALERT",
+  "source": "GitHub Action",
+  "title": "Dummy CPU Alert",
+  "description": "This is a simulated alert sent from GitHub Action"
+}
 
-# Run for 2 minutes
-time.sleep(120)
-running = False   # stop threads
-
-# Wait for all threads to finish
-for t in threads:
-    t.join()
-
-print("CPU stress test finished ✅")
-
+resp = requests.post(url, headers=headers, json=payload)
+print("Response:", resp.status_code, resp.text)
