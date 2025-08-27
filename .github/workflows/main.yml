@@ -1,25 +1,25 @@
-name: Dynatrace Dummy Alert
+name: Dynatrace CPU Dummy Problem
 
 on:
   workflow_dispatch:
 
 jobs:
-  send-alert:
+  simulate-cpu-problem:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.x"
+          python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install requests   # 👈 install missing module
+      - name: Install requests
+        run: pip install requests
 
-      - name: Run Dummy Dynatrace Alert Script
-        run: python3 test.py
+      - name: Run CPU Simulation
         env:
+          DT_URL: ${{ secrets.DT_URL }}
           DT_API_TOKEN: ${{ secrets.DT_API_TOKEN }}
-          DT_ENV_URL: ${{ secrets.DT_URL }}
+        run: python cpu_dummy_alert.py
