@@ -1,0 +1,36 @@
+name: Final
+
+on:
+  workflow_dispatch:
+  push:
+    
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Run deployment
+        run: |
+          echo "Starting deployment..."
+          exit 1   # ❌ Force fail to test alert
+
+      - name: Send Dynatrace Problem on Failure
+        if: failure()
+        run: |
+          curl -X POST \
+          "https://jvc12148.live.dynatrace.com/api/v2/events/ingest" \
+          -H "Authorization: Api-Token ${{ secrets.DT_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+                "eventType": "CUSTOM_ALERT",
+                "title": " Deployment Failed in GitHub Actions",
+                "properties": {
+                  "repository": "${{ github.repository }}",
+                  "workflow": "${{ github.workflow }}",
+                  "job": "${{ github.job }}",
+                  "run_id": "${{ github.run_id }}"
+                }
+              }'
