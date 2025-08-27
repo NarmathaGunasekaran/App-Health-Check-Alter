@@ -1,22 +1,31 @@
-import requests
 import os
+import requests
+import random
 
-# Dynatrace environment variables
-DT_ENV_URL = os.getenv("DT_URL")       # Example: https://abc123.live.dynatrace.com
-DT_API_TOKEN = os.getenv("DT_API_TOKEN")   # API Token with "events.ingest" permission
+DT_URL = os.environ.get("DT_URL")
+DT_API_TOKEN = os.environ.get("DT_API_TOKEN")
 
-url = f"https://jvc12148.live.dynatrace.com/api/v2/events"
+if not DT_URL or not DT_API_TOKEN:
+    raise ValueError("DT_URL or DT_API_TOKEN not set!")
+
+# Dynatrace Metrics Ingest API
+endpoint = f"{DT_URL}/api/v2/metrics/ingest"
+
+# Generate dummy CPU usage above threshold
+cpu_value = random.randint(85, 95)  # assuming threshold is 80%
+host_name = "dummy-host"
+
+# Metric payload
+metric_payload = f"builtin:host.cpu.usage,host={host_name} value={cpu_value}"
+
+# Headers
 headers = {
     "Authorization": f"Api-Token {DT_API_TOKEN}",
-    "Content-Type": "application/json"
+    "Content-Type": "text/plain; charset=utf-8"
 }
 
-payload = {
-  "eventType": "CUSTOM_ALERT",
-  "source": "GitHub Action",
-  "title": "Dummy CPU Alert",
-  "description": "This is a simulated alert sent from GitHub Action"
-}
+response = requests.post(endpoint, headers=headers, data=metric_payload)
 
-resp = requests.post(url, headers=headers, json=payload)
-print("Response:", resp.status_code, resp.text)
+print(f"Status Code: {response.status_code}")
+print("Response:", response.text)
+print(f"Sent CPU usage {cpu_value}% for host {host_name}")
