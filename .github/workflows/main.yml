@@ -1,34 +1,69 @@
-name: Dummy ALB Health Test
+name: Dynatrace Health, Deployment & CPU Demo
 
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "Choose scenario to simulate"
+        required: true
+        default: "healthy"
+        type: choice
+        options:
+          - healthy
+          - cpu_unhealthy
+          - deploy_fail
 
 jobs:
-  health-check:
+  demo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+      # ✅ Healthy Run
+      - name: Healthy job
+        if: ${{ github.event_name == 'push' || github.event.inputs.scenario == 'healthy' }}
+        run: echo "✅ Healthy run success"
 
-      - name: Install dependencies
-        run: pip install Flask requests
-
-      - name: Run Dummy App in background
+      - name: Send Healthy Event
+        if: ${{ github.event_name == 'push' || github.event.inputs.scenario == 'healthy' }}
         run: |
-          nohup python app.py &
-          sleep 5
+          curl -X POST "$DT_URL/api/v2/events/ingest" \
+            -H "Authorization: Api-Token ${{ secrets.DT_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"eventType":"CUSTOM_INFO","title":"Healthy Build","description":"GitHub Action succeeded"}'
 
-      - name: Check Health
+      # ⚠️ CPU Stress
+      - name: CPU Stress Simulation
+        if: ${{ github.event.inputs.scenario == 'cpu_unhealthy' }}
         run: |
-          python - <<EOF
-          import requests
-          r = requests.get("http://127.0.0.1:5000/health")
-          print(r.status_code, r.json())
-          if r.status_code != 200:
-              raise Exception("Dummy ALB Target Unhealthy!")
-          EOF
+          echo "⚠️ Simulating CPU stress..."
+          python3 - <<'PY'
+          import time
+          start=time.time()
+          while time.time()-start<10: pass
+          PY
+
+      - name: Send CPU Alert
+        if: ${{ github.event.inputs.scenario == 'cpu_unhealthy' }}
+        run: |
+          curl -X POST "$DT_URL/api/v2/events/ingest" \
+            -H "Authorization: Api-Token ${{ secrets.DT_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"eventType":"CUSTOM_ALERT","title":"High CPU Alert","description":"Dummy CPU load from GitHub Action"}'
+
+      # ❌ Deployment Failure
+      - name: Fake Deployment
+        if: ${{ github.event.inputs.scenario == 'deploy_fail' }}
+        run: exit 1
+        continue-on-error: true
+
+      - name: Send Deployment Failure
+        if: ${{ github.event.inputs.scenario == 'deploy_fail' }}
+        run: |
+          curl -X POST "$DT_URL/api/v2/events/ingest" \
+            -H "Authorization: Api-Token ${{ secrets.DT_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"eventType":"CUSTOM_ALERT","title":"Deployment Failure","description":"Simulated deployment failed in GitHub Action"}'
